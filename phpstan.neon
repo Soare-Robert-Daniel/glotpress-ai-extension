@@ -1,0 +1,14 @@
+parameters:
+	level: 7
+	universalObjectCratesClasses:
+		- Translation_Entry
+	paths:
+		- %currentWorkingDirectory%/includes
+	scanFiles:
+		- %rootDir%/../../pedro-mendonca/glotpress-stubs/glotpress-stubs.php
+
+	bootstrapFiles:
+		- %currentWorkingDirectory%/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+		- %currentWorkingDirectory%/tests/static-analysis-stubs.php
+includes:
+	- %currentWorkingDirectory%/vendor/szepeviktor/phpstan-wordpress/extension.neon

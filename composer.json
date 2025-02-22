@@ -1,0 +1,29 @@
+{
+    "name": "robert/glotpress-ai-extension",
+    "type": "project",
+    "scripts": {
+        "lint": "phpcs --standard=phpcs.xml",
+        "format": "phpcbf --standard=phpcs.xml",
+        "analyse": "phpstan analyse --memory-limit=4G includes"
+    },
+    "autoload": {
+        "psr-4": {
+            "GlotpressAiExtension\\": "includes/"
+        }
+    },
+    "authors": [],
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.11",
+        "wp-coding-standards/wpcs": "^3.0",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "phpstan/phpstan": "^2.1",
+        "php-stubs/wordpress-stubs": "^6.7",
+        "szepeviktor/phpstan-wordpress": "^2.0",
+        "pedro-mendonca/glotpress-stubs": "^4.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

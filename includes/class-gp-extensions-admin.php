@@ -50,6 +50,7 @@ class GP_Extensions_Admin {
 
 		( new GP_Extensions_Project_Extension() )->init();
 		GP_Extensions_Progress_Watcher::instance()->init();
+		GP_Extensions_Logger::instance()->register_cpt();
 	}
 
 	/**
@@ -175,15 +176,15 @@ class GP_Extensions_Admin {
 	 */
 	public function translate_set( int $set_id, string $target_language ): void {
 		$current_page = 1;
-		$max_page     = 3;
+		$max_page     = 1;
 		$api          = new GP_Extensions_OpenAI_Service();
 		$errors       = array();
-		$info         = array();
+		$api_info     = array();
 
 		/**
 		 * The translation set object or false if not found.
 		 *
-		 * @var false|\GP_Translation_Set $set The translation set instance or false on failure
+		 * @var \GP_Translation_Set|false $set The translation set instance or false on failure
 		 */
 		$set = GP::$translation_set->get( $set_id );
 
@@ -210,14 +211,15 @@ class GP_Extensions_Admin {
 			return;
 		}
 
-		$translated_rows = 0;
-		$total_rows      = -1;
-		$watcher         = GP_Extensions_Progress_Watcher::instance();
-		$started_at      = new DateTime();
+		$translated_rows        = 0;
+		$total_rows             = -1;
+		$watcher                = GP_Extensions_Progress_Watcher::instance();
+		$started_at             = current_datetime();
+		$translated_items_count = 0;
 
 		try {
 			while ( $current_page <= $max_page ) {
-				$translations_entries = GP::$translation->for_translation(
+				$entries_to_translate = GP::$translation->for_translation(
 					$project,
 					$set,
 					$current_page,
@@ -230,29 +232,30 @@ class GP_Extensions_Admin {
 
 				$watcher->update_progress( $project->id, $set->id, $translated_rows, $total_rows );
 
-				$batch = $this->prepare_batch( $translations_entries );
+				$batch = $this->prepare_batch( $entries_to_translate );
 
 				if ( empty( $batch ) ) {
 					break;
 				}
 
-				$translations = $api->translate_batch( $batch, $target_language );
+				$translated_entries = $api->translate_batch( $batch, $target_language );
 
-				if ( is_wp_error( $translations ) ) {
+				if ( is_wp_error( $translated_entries ) ) {
 					$errors[] = array(
-						'message' => $translations->get_error_message(),
-						'code'    => $translations->get_error_code(),
+						'message' => $translated_entries->get_error_message(),
+						'code'    => $translated_entries->get_error_code(),
 					);
 					break;
 				}
 
-				if ( empty( $translations ) ) {
+				if ( empty( $translated_entries ) ) {
 					continue;
 				}
 
-				$info[] = $api->get_last_response_info();
+				$translated_items_count += count( $translated_entries );
+				$api_info[]              = $api->get_last_response_info();
 
-				$this->update_translations( $translations_entries, $translations, $set );
+				$this->update_translations( $entries_to_translate, $translated_entries, $set );
 
 				$translated_rows += GP::$translation->per_page;
 				if ( $translated_rows > $total_rows ) {
@@ -264,19 +267,24 @@ class GP_Extensions_Admin {
 		} catch ( \Throwable $e ) {
 			$errors[] = array( 'message' => $e->getMessage() . ' | ' . $e->getTraceAsString() );
 		} finally {
-			$finished_at = new DateTime();
+			$finished_at = current_datetime();
 
-			$watcher->update_progress( $project->id, $set->id, $translated_rows, $total_rows, true );
-			GP_Extensions_Logger::instance()->add_log(
-				'project_' . $project->id . '-set_' . $set->id . '-' . gmdate( 'Y-m-d_H:i:s' ),
+			$log_id = GP_Extensions_Logger::instance()->add_log(
+				// translators: %1$s the name of the translation set, %2$s the name of the project.
+				sprintf( __( 'Translate translation set "%1$s" for project "%2$s"', 'glotpress-ai-extension' ), $set->name, $project->name ),
 				$errors,
-				$info,
+				$api_info,
 				array(
-					'started_at'  => $started_at->format( 'Y-m-d H:i:s T' ),
-					'finished_at' => $finished_at->format( 'Y-m-d H:i:s T' ),
-					'duration'    => $finished_at->getTimestamp() - $started_at->getTimestamp(),
+					'project_id'       => $project->id,
+					'set_id'           => $set->id,
+					'translated_items' => $translated_items_count,
+					'total_items'      => $total_rows,
+					'started_at'       => $started_at->format( DateTimeInterface::ATOM ),
+					'finished_at'      => $finished_at->format( DateTimeInterface::ATOM ),
+					'duration'         => $finished_at->getTimestamp() - $started_at->getTimestamp(),
 				)
 			);
+			$watcher->update_progress( $project->id, $set->id, $translated_rows, $total_rows, true, $log_id );
 		}
 	}
 
@@ -296,8 +304,8 @@ class GP_Extensions_Admin {
 		if ( ! $project_id || ! $set_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid parameters', 'glotpress-ai-extension' ) ) );
 		}
-		$transient_key = 'gp_translation_progress_' . $project_id . '_' . $set_id;
-		$progress_data = get_transient( $transient_key );
+
+		$progress_data = get_transient( GP_Extensions_Progress_Watcher::instance()->get_transient_key( $project_id, $set_id ) );
 		if ( false === $progress_data ) {
 			$progress_data = array(
 				'translated' => 0,
@@ -314,20 +322,20 @@ class GP_Extensions_Admin {
 	}
 
 	/**
-	 * Registers a submenu page under the Tools menu in WordPress admin dashboard.
-	 * This function adds a "GP Extensions" menu item to the WordPress admin Tools section.
+	 * Registers a main menu page in WordPress admin dashboard.
 	 *
 	 * @since 1.0.0
 	 * @return void
 	 */
 	public function register_dashboard_menu() {
-		add_submenu_page(
-			'tools.php',               // Parent slug (Tools menu).
-			__( 'GP Extensions Dashboard', 'glotpress-ai-extension' ), // Page title.
-			__( 'GP Extensions', 'glotpress-ai-extension' ),           // Menu title.
+		add_menu_page(
+			__( 'GP AI Extensions Dashboard', 'glotpress-ai-extension' ), // Page title.
+			__( 'GP AI Extensions', 'glotpress-ai-extension' ),           // Menu title.
 			'manage_options',          // Capability required to access this page.
-			'gp-extensions-dashboard', // Menu slug.
-			array( $this, 'render_dashboard' )   // Callback function that renders the page.
+			'gp-ai-extensions-dashboard', // Menu slug.
+			array( $this, 'render_dashboard' ),   // Callback function that renders the page.
+			'dashicons-translation',   // Icon (optional - you can change this).
+			30                         // Position (optional - adjusts where in menu it appears).
 		);
 	}
 
@@ -339,7 +347,7 @@ class GP_Extensions_Admin {
 	 * @return void
 	 */
 	public function enqueue_dashboard_styles( $hook_suffix ) {
-		if ( 'tools_page_gp-extensions-dashboard' !== $hook_suffix ) {
+		if ( 'tools_page_gp-ai-extensions-dashboard' !== $hook_suffix ) {
 			return;
 		}
 

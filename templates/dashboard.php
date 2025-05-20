@@ -82,7 +82,7 @@ if ( ! empty( $logs ) && is_array( $logs ) ) {
 					<th><?php esc_html_e( 'Errors', 'glotpress-ai-extension' ); ?></th>
 					<th><?php esc_html_e( 'API Requests', 'glotpress-ai-extension' ); ?></th>
 					<th><?php esc_html_e( 'Tokens (Run)', 'glotpress-ai-extension' ); ?></th>
-					<th><?php esc_html_e( 'Created At', 'glotpress-ai-extension' ); ?></th>
+					<th><?php esc_html_e( 'Logged At', 'glotpress-ai-extension' ); ?></th>
 					<th><?php esc_html_e( 'Started At', 'glotpress-ai-extension' ); ?></th>
 					<th><?php esc_html_e( 'Finished At', 'glotpress-ai-extension' ); ?></th>
 					<th><?php esc_html_e( 'Duration (s)', 'glotpress-ai-extension' ); ?></th>
@@ -135,7 +135,7 @@ if ( ! empty( $logs ) && is_array( $logs ) ) {
 						<td><?php echo intval( $log['tokens_this_run'] ); ?></td>
 
 						<!-- Created At -->
-						<td><?php echo esc_html( $log['created_at'] ); ?></td>
+						<td><?php echo esc_html( $log['logged_at'] ); ?></td>
 
 						<!-- Metadata: Started At, Finished At, Duration -->
 						<td>

@@ -65,15 +65,21 @@ class GP_Extensions_Progress_Watcher {
 	 * @param int  $translated_rows Number of translated rows.
 	 * @param int  $total_rows Total number of rows.
 	 * @param bool $completed If the process has finished.
+	 * @param int  $log_id The log id.
+	 *
 	 * @return void
 	 */
-	public function update_progress( int $project_id, int $set_id, int $translated_rows, int $total_rows, bool $completed = false ): void {
+	public function update_progress( int $project_id, int $set_id, int $translated_rows, int $total_rows, bool $completed = false, int $log_id = -1 ): void {
 		$transient_key = $this->get_transient_key( $project_id, $set_id );
 		$progress_data = array(
 			'translated' => $translated_rows,
 			'total'      => $total_rows,
 			'completed'  => $completed,
 		);
+
+		if ( -1 !== $log_id ) {
+			$progress_data['log_id'] = $log_id;
+		}
 
 		set_transient( $transient_key, $progress_data, HOUR_IN_SECONDS );
 	}
@@ -111,8 +117,30 @@ class GP_Extensions_Progress_Watcher {
 			return array(
 				'translated' => 0,
 				'total'      => 0,
-				'completed'  => false,
+				'completed'  => false
 			);
+		}
+
+		if (
+			isset( $progress_data['completed'] ) && $progress_data['completed']
+		) {
+			$errors     = get_post_meta( $log_id, '_log_errors', true );
+			$is_success = is_array( $errors ) ? 0 === count( $errors ) : false;
+
+			if ( isset( $progress_data['log_id'] ) && -1 !== $progress_data['log_id'] ) {
+				$log_id  = $progress_data['log_id'];
+				$log_url = add_query_arg(
+					array(
+						'action' => 'edit',
+						'post'   => $log_id,
+					),
+					admin_url( 'post.php' )
+				);
+
+				$progress_data['logUrl'] = esc_url_raw( $log_url );
+			}
+
+			$progress_data['success'] = $is_success;
 		}
 
 		return $progress_data;
@@ -153,7 +181,7 @@ class GP_Extensions_Progress_Watcher {
 	 * @param int $set_id The translation set ID.
 	 * @return string The transient key.
 	 */
-	private function get_transient_key( int $project_id, int $set_id ): string {
+	public function get_transient_key( int $project_id, int $set_id ): string {
 		return 'gp_translation_progress_' . $project_id . '_' . $set_id;
 	}
 }

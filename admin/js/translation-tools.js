@@ -1,7 +1,7 @@
 /**
  * The global GlotPress AI Translation object containing configuration and translations.
  * @global
- * 
+ *
  * @typedef {Object} GpAiTranslation
  * @property {string} ajaxurl - The URL to the WordPress admin-ajax.php file
  * @property {Object} labels - Translatable text labels
@@ -31,6 +31,7 @@ class TranslationHandler {
         this.originalText = translateBtn.textContent;
         this.gpAiTranslation = gpAiTranslation;
         this.addClickListener();
+		this.listeners = [];
     }
 
     /**
@@ -38,6 +39,10 @@ class TranslationHandler {
      */
     addClickListener() {
         this.translateBtn.addEventListener('click', (event) => this.handleClick(event));
+    }
+
+    addListener( listener ) {
+		this.listeners.push(listener);
     }
 
     /**
@@ -48,6 +53,7 @@ class TranslationHandler {
     async handleClick(event) {
         event.preventDefault();
         this.disableButton();
+		this.listeners.forEach(listener => listener?.());
 
         const { setId, targetLang, nonce } = this.getDataAttributes();
         const formData = this.buildFormData(setId, targetLang, nonce);
@@ -217,28 +223,53 @@ class TranslationProgress {
     updateProgressUI(progressData) {
         const { translated, total, completed } = progressData;
 
-        if (total === 0) {
-            // Do not display any progress if no translations exist.
-            this.progressElement.textContent = '';
-            return;
+        // No process started.
+        if ( 0 === total ) {
+			return;
         }
 
         const progressPercent = Math.round((translated / total) * 100);
         this.progressElement.textContent = `${this.gpAiTranslation.labels.translationProgress}: ${translated} / ${total} (${progressPercent}%)`;
 
         if ( completed ) {
-            setTimeout(() => this.handleCompletion(), 200);
+			console.log(progressData);
+            setTimeout(() => this.handleCompletion( progressData ), 200);
         }
     }
 
     /**
      * Handles translation completion
      */
-    handleCompletion() {
-        alert(this.gpAiTranslation.labels.translationComplete);
+    handleCompletion(progressData) {
+		if ( ! progressData.success ) {
+			this.tryRenderLogButton(progressData?.logUrl);
+		}
+
         if (this.translationHandler) {
             this.translationHandler.restoreButton();
         }
+    }
+
+    /**
+     * Render the log button if the provided URL is valid.
+     *
+     * @param {string?} logUrl
+     * @returns
+     */
+    tryRenderLogButton( logUrl ) {
+		this.clearHTML();
+    	if ( ! logUrl ) {
+		    this.progressElement.innerText = this.gpAiTranslation.labels.missingLogError;
+			return;
+	    }
+
+   		const logLink =  /** @type {HTMLAnchorElement} */( window.document.createElement('a'));
+		logLink.href = logUrl;
+		logLink.target = '_blank';
+		logLink.classList.add('notice');
+		logLink.innerText = this.gpAiTranslation.labels.logError;
+
+		this.progressElement.appendChild(logLink);
     }
 
     /**
@@ -274,6 +305,13 @@ class TranslationProgress {
     stopPolling() {
         clearInterval(this.pollingInterval);
     }
+
+    /**
+     * Clear the HTML content of the element.
+     */
+    clearHTML() {
+		this.progressElement.innerHTML = '';
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -287,6 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Pass the global gpAiTranslation to the classes
     const translationHandler = new TranslationHandler(translateBtn, window.gpAiTranslation);
     const translationProgress = new TranslationProgress(progressElement, translationHandler, window.gpAiTranslation);
+	translationHandler.addListener(() => translationProgress.clearHTML());
 
     translationProgress.startPolling();
 });

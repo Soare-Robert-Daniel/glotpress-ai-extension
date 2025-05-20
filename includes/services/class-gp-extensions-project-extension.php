@@ -114,6 +114,8 @@ class GP_Extensions_Project_Extension {
 					'translationComplete' => __( 'Translation completed successfully', 'glotpress-ai-extension' ),
 					'error'               => __( 'Error', 'glotpress-ai-extension' ),
 					'unknownError'        => __( 'Unknown error', 'glotpress-ai-extension' ),
+					'logError'      => __( 'An error occured while translating, check the log.', 'glotpress-ai-extension' ),
+					'missingLogError'      => __( 'An error occured while translating, the log is unavailble.', 'glotpress-ai-extension' )
 				),
 			)
 		) . ';';

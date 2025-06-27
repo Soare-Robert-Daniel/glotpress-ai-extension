@@ -119,11 +119,12 @@ class GP_Extensions_Project_Extension {
 					'errorOccurred'       => __( 'An error occurred while processing the translation.', 'glotpress-ai-extension' ),
 					'translating'         => __( 'Translating...', 'glotpress-ai-extension' ),
 					'translationProgress' => __( 'Translation Progress', 'glotpress-ai-extension' ),
-					'translationComplete' => __( 'Translation completed successfully', 'glotpress-ai-extension' ),
+					'translationComplete' => __( 'Translation completed successfully. Refresh the page!', 'glotpress-ai-extension' ),
 					'error'               => __( 'Error', 'glotpress-ai-extension' ),
 					'unknownError'        => __( 'Unknown error', 'glotpress-ai-extension' ),
 					'logError'            => __( 'An error occured while translating, check the log.', 'glotpress-ai-extension' ),
 					'missingLogError'     => __( 'An error occured while translating, the log is unavailble.', 'glotpress-ai-extension' ),
+					'connectionError'     => __( 'Connection error. Please check your network.', 'glotpress-ai-extension' ),
 				),
 			)
 		) . ';';

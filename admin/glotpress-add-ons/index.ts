@@ -10,6 +10,10 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return;
 	}
 
+	if ( ! window.gpAiTranslation ) {
+		return;
+	}
+
 	// Pass the global gpAiTranslation to the classes
 	const translationHandler = initTranslationButton(
 		translateBtn as HTMLButtonElement,

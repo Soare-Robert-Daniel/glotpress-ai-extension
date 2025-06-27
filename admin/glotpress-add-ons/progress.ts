@@ -1,22 +1,8 @@
 import van, { State } from 'vanjs-core';
 import { clsx } from 'clsx/lite';
+import type GpAiTranslation from '../global';
 
 const { div, a, span, svg, path, circle } = van.tags;
-
-// TypeScript type definitions
-interface GpAiTranslationLabels {
-	translationProgress: string;
-	error: string;
-	unknownError: string;
-	logError: string;
-	missingLogError: string;
-	missingProgress: string;
-}
-
-interface GpAiTranslation {
-	ajaxurl: string;
-	labels: GpAiTranslationLabels;
-}
 
 interface TranslationHandler {
 	restoreButton: () => void;
@@ -258,7 +244,7 @@ export const createTranslationProgress = (
 			}
 		} catch ( error ) {
 			console.error( 'Progress update error:', error );
-			errorMessage.val = 'Connection error. Please check your network.';
+			errorMessage.val = gpAiTranslation.labels.connectionError;
 		}
 	};
 
@@ -361,7 +347,7 @@ export const createTranslationProgress = (
 			return div(
 				{ class: 'gp_ai_ext_success-message' },
 				CheckIcon(),
-				span( 'Translation completed successfully!' )
+				span( gpAiTranslation.labels.translationComplete )
 			);
 		} ),
 

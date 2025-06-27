@@ -1,27 +1,7 @@
 import van, { State } from 'vanjs-core';
+import type GpAiTranslation from '../global';
 
 const { button } = van.tags;
-
-/**
- * The global GlotPress AI Translation object containing configuration and translations.
- * @global
- */
-interface GpAiTranslationLabels {
-	missingButton: string;
-	missingProgress: string;
-	translationFailed: string;
-	errorOccurred: string;
-	translating: string;
-	translationProgress: string;
-	translationComplete: string;
-	error: string;
-	unknownError: string;
-}
-
-interface GpAiTranslation {
-	ajaxurl: string;
-	labels: GpAiTranslationLabels;
-}
 
 interface TranslationButtonConfig {
 	setId: string;

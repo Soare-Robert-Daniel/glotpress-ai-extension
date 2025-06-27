@@ -2,12 +2,15 @@
 /**
  * Plugin Name:     GlotPress AI Extension
  * Plugin URI:      glotpress-ai-extension
- * Description:     Enhance GlotPress with AI translation functions.
+ * Description:     Integrate OpenAI with GlotPress for automatic translation.
  * Author:          Soare Robert-Daniel
  * Author URI:      Soare Robert-Daniel
  * Text Domain:     glotpress-ai-extension
+ * Requires at least: 5.6
+ * Requires PHP:      7.4
  * Domain Path:     /languages
- * Version:         0.1.0
+ * Version:         1.0.0
+ * Requires Plugins: action-scheduler
  *
  * @package         Glotpress_Ai_Extension
  */

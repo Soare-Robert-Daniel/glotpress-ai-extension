@@ -163,7 +163,7 @@ class GP_Extensions_Admin {
 			wp_send_json_success( array( 'message' => __( 'Another translation is in action!', 'glotpress-ai-extension' ) ) );
 		}
 
-		wp_send_json_success( array( 'message' => __( 'Translation has started!', 'glotpress-ai-extension' ) ) );
+		wp_send_json_success( array( 'message' => __( 'Translation enqueued!', 'glotpress-ai-extension' ) ) );
 	}
 
 	/**

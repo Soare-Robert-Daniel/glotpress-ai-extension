@@ -1,0 +1,195 @@
+// translation-progress.scss
+// GlotPress AI Extension - Translation Progress Component Styles
+
+.gp_ai_ext_translation-progress-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f7f7f7;
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin: 10px 0;
+
+  // Match GlotPress's simple, clean design
+  * {
+    box-sizing: border-box;
+  }
+}
+
+.gp_ai_ext_progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.gp_ai_ext_progress-title {
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+  font-weight: normal;
+}
+
+.gp_ai_ext_progress-stats {
+  font-size: 13px;
+  color: #666;
+}
+
+.gp_ai_ext_progress-bar-container {
+  background: #e5e5e5;
+  height: 20px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #ccc;
+}
+
+.gp_ai_ext_progress-bar {
+  background: #0073aa; // WordPress/GlotPress blue
+  height: 100%;
+  transition: width 0.3s ease;
+  position: relative;
+
+  &.complete {
+    background: #46b450; // WordPress green for success
+  }
+
+  // Simple animated stripes instead of shimmer
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image: linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, .2) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, .2) 50%,
+      rgba(255, 255, 255, .2) 75%,
+      transparent 75%,
+      transparent
+    );
+    background-size: 50px 50px;
+    animation: gp_ai_ext_progress-stripes 1s linear infinite;
+  }
+}
+
+@keyframes gp_ai_ext_progress-stripes {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 50px 50px;
+  }
+}
+
+.gp_ai_ext_progress-percentage {
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.gp_ai_ext_error-message {
+  background: #ffebe8;
+  border: 1px solid #c00;
+  color: #333;
+  padding: 10px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .gp_ai_ext_icon-error {
+    flex-shrink: 0;
+  }
+}
+
+.gp_ai_ext_success-message {
+  background: #f0f8ff;
+  border: 1px solid #2271b1;
+  color: #333;
+  padding: 10px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .gp_ai_ext_icon-check {
+    flex-shrink: 0;
+  }
+}
+
+.gp_ai_ext_log-button {
+  display: inline-block;
+  background: #f7f7f7;
+  border: 1px solid #ccc;
+  color: #0073aa;
+  padding: 5px 10px;
+  text-decoration: none;
+  font-size: 13px;
+  margin-top: 10px;
+  transition: background-color 0.1s ease-in-out;
+
+  &:hover {
+    background: #fafafa;
+    border-color: #999;
+    color: #005a87;
+  }
+
+  &:focus {
+    border-color: #5b9dd9;
+    box-shadow: 0 0 2px rgba(30, 140, 190, .8);
+    outline: none;
+  }
+
+  .gp_ai_ext_icon-external {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 4px;
+    opacity: 0.7;
+  }
+}
+
+// Icon styles
+.gp_ai_ext_icon-check,
+.gp_ai_ext_icon-error,
+.gp_ai_ext_icon-external {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.gp_ai_ext_icon-check {
+  circle {
+    stroke: #46b450;
+  }
+  path {
+    stroke: #46b450;
+  }
+}
+
+.gp_ai_ext_icon-error {
+  circle {
+    stroke: #d54e21;
+  }
+  path {
+    stroke: #d54e21;
+  }
+}
+
+.gp_ai_ext_hide {
+	display: none;
+}
+
+// Responsive adjustments
+@media screen and (max-width: 782px) {
+  .gp_ai_ext_translation-progress-container {
+    padding: 10px;
+  }
+
+  .gp_ai_ext_progress-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}

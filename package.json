@@ -1,17 +1,45 @@
-
 {
   "name": "glotpress-ai-extension",
   "version": "0.1.0",
   "main": "Gruntfile.js",
   "author": "Soare Robert Daniel",
-  "scripts" : {
-    "start" : "grunt default" ,
-    "readme" : "grunt readme",
-    "i18n" : "grunt i18n"
+  "scripts": {
+    "start:dashboard": "wp-scripts start --webpack-src-dir=admin/dashboard/ --output-path=build/dashboard --output-filename=dashboard.js",
+    "build:dashboard": "wp-scripts build --webpack-src-dir=admin/dashboard/ --output-path=build/dashboard --output-filename=dashboard.js",
+    "start:addons": "wp-scripts start --webpack-src-dir=admin/glotpress-add-ons/ --output-path=build/addons --output-filename=addons.js",
+    "build:addons": "wp-scripts build --webpack-src-dir=admin/glotpress-add-ons/ --output-path=build/addons --output-filename=addons.js",
+    "start": "grunt default",
+    "readme": "grunt readme",
+    "i18n": "grunt i18n",
+    "format": "wp-scripts format ./admin",
+    "format:fix": "wp-scripts lint-js ./admin --fix",
+    "lint:css": "wp-scripts lint-style ./admin",
+    "lint:js": "wp-scripts lint-js ./admin"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "@tanstack/eslint-plugin-query": "^5.81.2",
+    "@wordpress/api-fetch": "^7.26.0",
+    "@wordpress/eslint-plugin": "^22.12.0",
+    "@wordpress/scripts": "^30.19.0",
     "grunt": "~0.4.5",
     "grunt-wp-i18n": "~0.5.0",
-    "grunt-wp-readme-to-markdown": "~1.0.0"
+    "grunt-wp-readme-to-markdown": "~1.0.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.81.2",
+    "@wordpress/components": "^29.12.0",
+    "@wordpress/dom-ready": "^4.26.0",
+    "@wordpress/element": "^6.26.0",
+    "@wordpress/i18n": "^5.26.0",
+    "@wordpress/icons": "^10.26.0",
+    "@wordpress/url": "^4.26.0",
+    "clsx": "^2.1.1",
+    "lodash": "^4.17.21",
+    "runtype": "^0.2.3",
+    "runtypes": "^7.0.4",
+    "vanjs-core": "^1.5.5"
   }
 }

@@ -65,7 +65,7 @@ class GP_Extensions_OpenAI_Service {
 	 * @return string|false The API key if exists, false otherwise.
 	 */
 	private function get_api_key() {
-		return get_option( self::API_KEY_OPTION );
+		return GP_AI_Settings_Manager::get_instance()->get_api_key();
 	}
 
 	/**
@@ -76,7 +76,7 @@ class GP_Extensions_OpenAI_Service {
 	 * @return string|false The model name if exists, false otherwise.
 	 */
 	private function get_model_name() {
-		return get_option( self::MODEL_OPTION, self::DEFAULT_MODEL );
+		return GP_AI_Settings_Manager::get_instance()->get_model();
 	}
 
 	/**

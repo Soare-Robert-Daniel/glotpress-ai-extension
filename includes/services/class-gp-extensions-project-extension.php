@@ -82,12 +82,19 @@ class GP_Extensions_Project_Extension {
 	 * @return void
 	 */
 	public function register_scripts(): void {
+		// @phpstan-ignore include.fileNotFound
+		$asset_file = include GLOTPRESS_AI_EXTENSION_PATH . '/build/addons/addons.asset.php';
 		wp_register_script(
-			'gp-ai-translation-set',
-			GLOTPRESS_AI_EXTENSION_URL . 'admin/js/translation-tools.js',
-			array(),
-			GLOTPRESS_AI_EXTENSION_VERSION,
-			true
+			'gp-ai-translation-addons',
+			GLOTPRESS_AI_EXTENSION_URL . 'build/addons/addons.js',
+			$asset_file['dependencies'],
+			$asset_file['version']
+		);
+		wp_register_style(
+			'gp-ai-translation-addons-style',
+			GLOTPRESS_AI_EXTENSION_URL . 'build/addons/style-index.css',
+			$asset_file['dependencies'],
+			$asset_file['version']
 		);
 	}
 
@@ -99,7 +106,8 @@ class GP_Extensions_Project_Extension {
 	 * @return void
 	 */
 	public function print_scripts(): void {
-		wp_print_scripts( array( 'gp-ai-translation-set' ) );
+		wp_print_scripts( array( 'gp-ai-translation-addons' ) );
+		wp_print_styles( array( 'gp-ai-translation-addons-style' ) );
 		echo '<script>';
 		echo 'var gpAiTranslation = ' . wp_json_encode(
 			array(
@@ -114,8 +122,8 @@ class GP_Extensions_Project_Extension {
 					'translationComplete' => __( 'Translation completed successfully', 'glotpress-ai-extension' ),
 					'error'               => __( 'Error', 'glotpress-ai-extension' ),
 					'unknownError'        => __( 'Unknown error', 'glotpress-ai-extension' ),
-					'logError'      => __( 'An error occured while translating, check the log.', 'glotpress-ai-extension' ),
-					'missingLogError'      => __( 'An error occured while translating, the log is unavailble.', 'glotpress-ai-extension' )
+					'logError'            => __( 'An error occured while translating, check the log.', 'glotpress-ai-extension' ),
+					'missingLogError'     => __( 'An error occured while translating, the log is unavailble.', 'glotpress-ai-extension' ),
 				),
 			)
 		) . ';';

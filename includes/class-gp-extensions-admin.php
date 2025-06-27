@@ -51,6 +51,7 @@ class GP_Extensions_Admin {
 		( new GP_Extensions_Project_Extension() )->init();
 		GP_Extensions_Progress_Watcher::instance()->init();
 		GP_Extensions_Logger::instance()->register_cpt();
+		GP_Extensions_Endpoints::get_instance()->init();
 	}
 
 	/**
@@ -285,6 +286,16 @@ class GP_Extensions_Admin {
 				)
 			);
 			$watcher->update_progress( $project->id, $set->id, $translated_rows, $total_rows, true, $log_id );
+
+			$total_used_tokens = 0;
+			foreach ( $api_info as $api_run ) {
+				if ( ! empty( $api_run['tokens_used'] ) ) {
+					$total_used_tokens += $api_run['tokens_used'];
+				}
+			}
+			$stats_manager = GP_Extensions_Stats::instance();
+			$stats_manager->increment_translations_started();
+			$stats_maganer->add_tokens_used( $total_used_tokens );
 		}
 	}
 
@@ -337,6 +348,15 @@ class GP_Extensions_Admin {
 			'dashicons-translation',   // Icon (optional - you can change this).
 			30                         // Position (optional - adjusts where in menu it appears).
 		);
+
+		add_submenu_page(
+			'gp-ai-extensions-dashboard',                                  // Parent slug
+			__( 'Settings', 'glotpress-ai-extension' ),                   // Page title
+			__( 'Settings', 'glotpress-ai-extension' ),                   // Menu title
+			'manage_options',                                              // Capability
+			'gp-ai-extensions-settings',                                   // Menu slug
+			array( $this, 'render_dashboard' )                        // Callback function
+		);
 	}
 
 	/**
@@ -347,15 +367,24 @@ class GP_Extensions_Admin {
 	 * @return void
 	 */
 	public function enqueue_dashboard_styles( $hook_suffix ) {
-		if ( 'tools_page_gp-ai-extensions-dashboard' !== $hook_suffix ) {
+		if ( 'gp-ai-extensions_page_gp-ai-extensions-settings' !== $hook_suffix ) {
 			return;
 		}
 
+		// @phpstan-ignore include.fileNotFound
+		$asset_file = include GLOTPRESS_AI_EXTENSION_PATH . '/build/dashboard/dashboard.asset.php';
+		wp_enqueue_script(
+			'gp-ai-extension-dashboard',
+			GLOTPRESS_AI_EXTENSION_URL . 'build/dashboard/dashboard.js',
+			$asset_file['dependencies'],
+			$asset_file['version']
+		);
+
 		wp_enqueue_style(
-			'gp-extensions-dashboard-css',
-			GLOTPRESS_AI_EXTENSION_URL . 'admin/css/dashboard.css',
-			array(),
-			GLOTPRESS_AI_EXTENSION_VERSION
+			'gp-ai-extension-dashboard-css',
+			GLOTPRESS_AI_EXTENSION_URL . 'build/dashboard/index.css',
+			array( 'wp-components' ),
+			$asset_file['version']
 		);
 	}
 

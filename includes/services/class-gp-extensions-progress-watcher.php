@@ -115,17 +115,20 @@ class GP_Extensions_Progress_Watcher {
 
 		if ( false === $progress_data ) {
 			return array(
+				'started' => false,
 				'translated' => 0,
 				'total'      => 0,
-				'completed'  => false
+				'completed'  => false,
 			);
 		}
+
+		$progress_data['started'] = true;
 
 		if (
 			isset( $progress_data['completed'] ) && $progress_data['completed']
 		) {
 			$errors     = get_post_meta( $log_id, '_log_errors', true );
-			$is_success = is_array( $errors ) ? 0 === count( $errors ) : false;
+			$is_success = is_array( $errors ) ? 0 === count( $errors ) : true;
 
 			if ( isset( $progress_data['log_id'] ) && -1 !== $progress_data['log_id'] ) {
 				$log_id  = $progress_data['log_id'];
